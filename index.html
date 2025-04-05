@@ -334,7 +334,6 @@
                 <div class="share-buttons">
                     <button class="share-btn" onclick="shareOnWhatsApp()">WhatsApp</button>
                     <button class="share-btn" onclick="shareOnFacebook()">Facebook</button>
-                    <button class="share-btn" onclick="copyLink()">Copy Link</button>
                 </div>
             </div>
         </div>
@@ -409,17 +408,6 @@
             updateProgress();
         }
         
-        function copyLink() {
-            navigator.clipboard.writeText(window.location.href)
-                .then(() => {
-                    alert('Link copied to clipboard!');
-                    updateProgress();
-                })
-                .catch(err => {
-                    console.error('Could not copy text: ', err);
-                });
-        }
-        
         function showResult() {
             document.getElementById('share-section').classList.add('hidden');
             document.getElementById('result-section').classList.remove('hidden');
@@ -435,4 +423,4 @@
         console.log('%cThis is a demonstration website only. Real free diamond generators are always scams.', 'color: orange; font-size: 14px;');
     </script>
 </body>
-</html>
+</html>khj
