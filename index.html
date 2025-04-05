@@ -216,6 +216,51 @@
         #phone {
             border-radius: 0 5px 5px 0;
         }
+        
+        .progress-container {
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #ff9f00;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .share-section {
+            margin-top: 20px;
+        }
+        
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .share-btn {
+            padding: 10px 15px;
+            background-color: #ff9f00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -277,6 +322,11 @@
             
             <div class="step">
                 <div class="step-number">3</div>
+                <div>Share with 5 friends</div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">4</div>
                 <div>Receive diamonds in your Free Fire account</div>
             </div>
         </div>
@@ -306,18 +356,31 @@
             <button class="submit-btn" onclick="startVerification()">COMPLETE VERIFICATION</button>
         </div>
         
-        <div id="loading-section" class="loading hidden">
-            <div class="spinner"></div>
-            <h3>PROCESSING YOUR REQUEST</h3>
-            <p>Please wait while we add diamonds to your account...</p>
-            <p id="countdown">Estimated time remaining: 30s</p>
+        <div id="share-section" class="offer-box hidden">
+            <h3>SHARE WITH FRIENDS</h3>
+            <p>Share this link with 5 friends to complete verification:</p>
+            
+            <div class="progress-container">
+                <div class="progress-text" id="progress-text">0/5 friends shared</div>
+                <div class="progress-bar">
+                    <div class="progress" id="progress-bar"></div>
+                </div>
+            </div>
+            
+            <div class="share-section">
+                <p id="share-timer">Time remaining: 30 seconds</p>
+                <div class="share-buttons">
+                    <button class="share-btn" onclick="shareOnWhatsApp()">WhatsApp</button>
+                    <button class="share-btn" onclick="shareOnFacebook()">Facebook</button>
+                    <button class="share-btn" onclick="copyLink()">Copy Link</button>
+                </div>
+            </div>
         </div>
         
         <div id="result-section" class="offer-box hidden">
-            <h2 id="result-title">VERIFICATION SUCCESSFUL!</h2>
+            <h2 id="result-title">VERIFICATION COMPLETE!</h2>
             <p id="result-message">Your request for <span id="diamond-amount">100</span> diamonds has been processed successfully.</p>
             <p>Diamonds will be added to your account within 24 hours.</p>
-            <button class="submit-btn" onclick="shareOffer()">SHARE WITH FRIENDS</button>
         </div>
         
         <footer>
@@ -329,6 +392,9 @@
     <script>
         // JavaScript functionality
         let selectedPackage = 0;
+        let sharedCount = 0;
+        let shareTimer = 30;
+        let shareInterval;
         
         function selectPackage(amount) {
             selectedPackage = amount;
@@ -350,78 +416,83 @@
                 return;
             }
             
-            // Show loading section
+            // Hide verification and show share section
             document.getElementById('verification-section').classList.add('hidden');
-            document.getElementById('loading-section').classList.remove('hidden');
+            document.getElementById('share-section').classList.remove('hidden');
             
-            // Simulate processing (30 seconds)
-            let seconds = 30;
-            const countdownElement = document.getElementById('countdown');
+            // Start share timer
+            startShareTimer();
             
-            const countdownInterval = setInterval(() => {
-                seconds--;
-                countdownElement.textContent = `Estimated time remaining: ${seconds}s`;
+            // Scroll to share section
+            document.getElementById('share-section').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+        
+        function startShareTimer() {
+            shareTimer = 30;
+            updateTimerDisplay();
+            
+            shareInterval = setInterval(() => {
+                shareTimer--;
+                updateTimerDisplay();
                 
-                if (seconds <= 0) {
-                    clearInterval(countdownInterval);
-                    showResult();
+                if (shareTimer <= 0) {
+                    clearInterval(shareInterval);
+                    if (sharedCount < 5) {
+                        document.getElementById('share-timer').textContent = "Time's up! Please share with more friends.";
+                    }
                 }
             }, 1000);
+        }
+        
+        function updateTimerDisplay() {
+            document.getElementById('share-timer').textContent = `Time remaining: ${shareTimer} seconds`;
+        }
+        
+        function updateProgress() {
+            sharedCount++;
+            const progressPercent = (sharedCount / 5) * 100;
+            document.getElementById('progress-text').textContent = `${sharedCount}/5 friends shared`;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
             
-            // Random chance to show result earlier
-            setTimeout(() => {
-                if (Math.random() > 0.5) {
-                    clearInterval(countdownInterval);
-                    showResult();
-                }
-            }, 15000);
+            if (sharedCount >= 5) {
+                clearInterval(shareInterval);
+                setTimeout(showResult, 1000);
+            }
+        }
+        
+        function shareOnWhatsApp() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://wa.me/?text=Get+free+Free+Fire+diamonds+here:+${url}`);
+            updateProgress();
+        }
+        
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`);
+            updateProgress();
+        }
+        
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href)
+                .then(() => {
+                    alert('Link copied to clipboard!');
+                    updateProgress();
+                })
+                .catch(err => {
+                    console.error('Could not copy text: ', err);
+                });
         }
         
         function showResult() {
-            document.getElementById('loading-section').classList.add('hidden');
-            
-            // Random success/failure
-            if (Math.random() > 0.3) {
-                // Success
-                document.getElementById('result-title').textContent = 'VERIFICATION SUCCESSFUL!';
-                document.getElementById('result-message').textContent = `Your request for ${selectedPackage} diamonds has been processed successfully.`;
-            } else {
-                // Failure
-                document.getElementById('result-title').textContent = 'VERIFICATION FAILED';
-                document.getElementById('result-message').textContent = 'We could not verify your account. Please try again later.';
-            }
-            
+            document.getElementById('share-section').classList.add('hidden');
             document.getElementById('result-section').classList.remove('hidden');
             
             // Scroll to result section
             document.getElementById('result-section').scrollIntoView({
                 behavior: 'smooth'
             });
-        }
-        
-        function shareOffer() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Get Free Fire Diamonds for Free!',
-                    text: 'Claim your free diamonds now! Limited time offer!',
-                    url: window.location.href
-                }).catch(err => {
-                    console.log('Error sharing:', err);
-                    copyToClipboard();
-                });
-            } else {
-                copyToClipboard();
-            }
-        }
-        
-        function copyToClipboard() {
-            const el = document.createElement('textarea');
-            el.value = window.location.href;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            alert('Link copied to clipboard! Share it with your friends.');
         }
         
         // Easter egg - console message
