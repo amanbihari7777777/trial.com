@@ -331,11 +331,13 @@
             
             <div class="form-group">
                 <label for="email">Email Address</label>
-                <input type="email" id="email" placeholder="Enter your email">
+                <input type="email" id="email" placeholder="Enter your valid email address" 
+                       oninput="validateEmail()">
+                <div id="email-error" class="error-message">Please enter a valid email address</div>
             </div>
             
             <div class="form-group">
-                <label for="phone">Mobile Number (Optional)</label>
+                <label for="phone">Mobile Number</label>
                 <div class="phone-input">
                     <div class="country-code">+91</div>
                     <input type="tel" id="phone" placeholder="Enter 10-digit mobile number" 
@@ -361,7 +363,7 @@
             <div class="share-section">
                 <div class="share-buttons">
                     <button class="share-btn" onclick="shareOnWhatsApp()">WhatsApp</button>
-                    <button class="share-btn" onclick="shareOnFacebook()">Facebook</button>
+                    <button class="share-btn" onclick="shareAnywhere()">Share</button>
                 </div>
             </div>
         </div>
@@ -407,12 +409,25 @@
             }
         }
         
+        function validateEmail() {
+            const email = document.getElementById('email').value;
+            const errorElement = document.getElementById('email-error');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (!emailRegex.test(email)) {
+                errorElement.style.display = 'block';
+                return false;
+            } else {
+                errorElement.style.display = 'none';
+                return true;
+            }
+        }
+        
         function validatePhone() {
             const phone = document.getElementById('phone').value;
             const errorElement = document.getElementById('phone-error');
             
-            // Phone is optional, but if provided must be 10 digits
-            if (phone && phone.length !== 10) {
+            if (phone.length !== 10) {
                 errorElement.style.display = 'block';
                 return false;
             } else {
@@ -433,17 +448,13 @@
                 isValid = false;
             }
             
-            // Validate email (basic check)
-            if (!email) {
-                alert('Please enter your email address');
-                isValid = false;
-            } else if (!email.includes('@') || !email.includes('.')) {
-                alert('Please enter a valid email address');
+            // Validate email
+            if (!validateEmail()) {
                 isValid = false;
             }
             
-            // Validate phone (if provided)
-            if (phone && !validatePhone()) {
+            // Validate phone (now compulsory)
+            if (!validatePhone()) {
                 isValid = false;
             }
             
@@ -480,10 +491,23 @@
             updateProgress();
         }
         
-        function shareOnFacebook() {
-            const url = encodeURIComponent(window.location.href);
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`);
-            updateProgress();
+        function shareAnywhere() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Free Fire Diamonds',
+                    text: 'Get free diamonds for Free Fire!',
+                    url: window.location.href
+                }).then(() => {
+                    updateProgress();
+                }).catch(err => {
+                    console.log('Error sharing:', err);
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                const url = encodeURIComponent(window.location.href);
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`);
+                updateProgress();
+            }
         }
         
         function showResult() {
