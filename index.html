@@ -224,6 +224,30 @@
             cursor: pointer;
             font-weight: bold;
         }
+        
+        .phone-input {
+            display: flex;
+        }
+        
+        .country-code {
+            padding: 12px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid #444;
+            border-right: none;
+            border-radius: 5px 0 0 5px;
+            color: #fff;
+        }
+        
+        #phone {
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .error-message {
+            color: #ff4444;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -300,7 +324,9 @@
             
             <div class="form-group">
                 <label for="ffid">Free Fire ID</label>
-                <input type="number" id="ffid" placeholder="Enter your Free Fire ID" oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+                <input type="number" id="ffid" placeholder="Enter your Free Fire ID (8-11 digits)" 
+                       oninput="this.value=this.value.replace(/[^0-9]/g,''); validateUID()">
+                <div id="uid-error" class="error-message">Free Fire ID must be 8-11 digits</div>
             </div>
             
             <div class="form-group">
@@ -312,11 +338,13 @@
                 <label for="phone">Mobile Number (Optional)</label>
                 <div class="phone-input">
                     <div class="country-code">+91</div>
-                    <input type="tel" id="phone" placeholder="Enter your mobile number" oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+                    <input type="tel" id="phone" placeholder="Enter 10-digit mobile number" 
+                           maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,''); validatePhone()">
                 </div>
+                <div id="phone-error" class="error-message">Mobile number must be 10 digits</div>
             </div>
             
-            <button class="submit-btn" onclick="startVerification()">COMPLETE VERIFICATION</button>
+            <button class="submit-btn" onclick="validateForm()">COMPLETE VERIFICATION</button>
         </div>
         
         <div id="share-section" class="offer-box hidden">
@@ -366,15 +394,65 @@
             });
         }
         
-        function startVerification() {
+        function validateUID() {
+            const uid = document.getElementById('ffid').value;
+            const errorElement = document.getElementById('uid-error');
+            
+            if (uid.length < 8 || uid.length > 11) {
+                errorElement.style.display = 'block';
+                return false;
+            } else {
+                errorElement.style.display = 'none';
+                return true;
+            }
+        }
+        
+        function validatePhone() {
+            const phone = document.getElementById('phone').value;
+            const errorElement = document.getElementById('phone-error');
+            
+            // Phone is optional, but if provided must be 10 digits
+            if (phone && phone.length !== 10) {
+                errorElement.style.display = 'block';
+                return false;
+            } else {
+                errorElement.style.display = 'none';
+                return true;
+            }
+        }
+        
+        function validateForm() {
             const ffid = document.getElementById('ffid').value;
             const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
             
-            if (!ffid || !email) {
-                alert('Please fill in all required fields!');
-                return;
+            let isValid = true;
+            
+            // Validate UID (8-11 digits)
+            if (!validateUID()) {
+                isValid = false;
             }
             
+            // Validate email (basic check)
+            if (!email) {
+                alert('Please enter your email address');
+                isValid = false;
+            } else if (!email.includes('@') || !email.includes('.')) {
+                alert('Please enter a valid email address');
+                isValid = false;
+            }
+            
+            // Validate phone (if provided)
+            if (phone && !validatePhone()) {
+                isValid = false;
+            }
+            
+            if (isValid) {
+                startVerification();
+            }
+        }
+        
+        function startVerification() {
             // Hide verification and show share section
             document.getElementById('verification-section').classList.add('hidden');
             document.getElementById('share-section').classList.remove('hidden');
@@ -423,4 +501,4 @@
         console.log('%cThis is a demonstration website only. Real free diamond generators are always scams.', 'color: orange; font-size: 14px;');
     </script>
 </body>
-</html>khj
+</html>
